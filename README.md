@@ -11,6 +11,19 @@ The method was developed as part of the analysis workflow accompanying
 > Status: research software, initial public release. Please validate the
 > registration on your own data before downstream biological analysis.
 
+## Method overview
+
+![Figure 1B. CIRNE registration workflow](docs/assets/figure1b_cirne_workflow.png)
+
+**Figure 1B. CIRNE registration workflow.** DAPI and H&E are first brought into
+global alignment using an upstream affine-registration step. CIRNE then
+estimates patch-wise translations by maximizing nuclear-mask IoU, interpolates
+and smooths these sparse shifts into a dense displacement field, and applies an
+inverse warp to the moving image or instance-label mask. The released Python
+package implements the highlighted CIRNE core (steps 3–5); image segmentation
+and global affine alignment are upstream preprocessing and are not installed as
+part of `cirne`.
+
 ## How it works
 
 1. Divide the moving and fixed masks into spatial patches.
