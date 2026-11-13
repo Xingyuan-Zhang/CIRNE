@@ -5,12 +5,6 @@ spatial imaging. It estimates local translations from foreground masks, builds
 a smooth deformation field, and warps the original instance-label image while
 preserving label IDs.
 
-The method was developed as part of the analysis workflow accompanying
-[Halo: a pretrained model for whole-cell segmentation from nuclei images in spatial transcriptomics](https://doi.org/10.1093/bib/bbag515).
-
-> Status: research software, initial public release. Please validate the
-> registration on your own data before downstream biological analysis.
-
 ## Method overview
 
 ![Figure 1B. CIRNE registration workflow](docs/assets/figure1b_cirne_workflow.png)
