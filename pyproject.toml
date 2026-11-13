@@ -26,10 +26,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-diagnostics = ["matplotlib>=3.6", "scikit-image>=0.20"]
-training = ["cellpose==4.0.6", "tqdm>=4.64"]
 test = ["pytest>=7"]
-dev = ["cirne-registration[diagnostics,test]"]
 
 [project.scripts]
 cirne-register = "cirne.cli:main"
@@ -45,4 +42,3 @@ where = ["src"]
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
-

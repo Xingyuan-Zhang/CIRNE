@@ -8,8 +8,8 @@
 
 set -euo pipefail
 
-# Activate the environment containing CIRNE and cellpose==4.0.6 here.
-python training/train_cellposesam.py \
+# Activate the downstream CellposeSAM environment here.
+python downstream_analysis/model_training/train_cellposesam.py \
   --data-root /path/to/training-patches \
   --output-dir /path/to/cirne-training-output \
   --epochs 300 \

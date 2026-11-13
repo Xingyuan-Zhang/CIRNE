@@ -87,19 +87,22 @@ for a complete runnable example.
   a denser field but use more memory.
 - `smooth-sigma`: Gaussian smoothing on the coarse grid.
 
-## Training the associated segmentation model
+## Package scope
 
-Registration itself is model-free and does not require weights. The repository
-also contains an optional, reproducible CellposeSAM fine-tuning entry point for
-the segmentation model used to produce masks. See
-[`training/README.md`](training/README.md). Model weights are intentionally not
-stored in Git; the training interface accepts either Cellpose's `cpsam` model
-or a local/downloaded checkpoint.
+The installable `cirne` package contains only the model-free CIRNE registration
+algorithm, label-image I/O, and command-line interface. It does not depend on
+Cellpose, PyTorch, or any segmentation-model weights.
 
-## Reproducibility and analysis
+Segmentation-model training is not part of CIRNE. For research reproducibility,
+the associated CellposeSAM training scripts are archived separately under
+[`downstream_analysis/model_training`](downstream_analysis/model_training) and
+are excluded from the Python package and its dependencies.
+
+## Reproducibility and downstream analysis
 
 The correspondence between the original research workspace and this public
-repository is documented in [`analysis/README.md`](analysis/README.md). Large
+repository is documented in
+[`downstream_analysis/PROVENANCE.md`](downstream_analysis/PROVENANCE.md). Large
 raw images, intermediate arrays, and model checkpoints are excluded.
 
 ## Citation

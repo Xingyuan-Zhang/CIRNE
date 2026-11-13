@@ -1,7 +1,8 @@
-# Segmentation-model training
+# Downstream segmentation-model training
 
-CIRNE registration does not use a neural network. This optional workflow
-fine-tunes CellposeSAM to generate segmentation masks for registration.
+CIRNE registration does not use a neural network. This separate downstream
+workflow fine-tunes CellposeSAM to generate masks that may be used as CIRNE
+inputs. It is not installed with the `cirne` package.
 
 ## Data layout
 
@@ -25,9 +26,9 @@ datasets matching this structure and records its full configuration.
 ## Install and run
 
 ```bash
-python -m pip install '.[training]'
+python -m pip install -r downstream_analysis/model_training/requirements.txt
 
-python training/train_cellposesam.py \
+python downstream_analysis/model_training/train_cellposesam.py \
   --data-root /path/to/patches \
   --output-dir /path/to/training-output \
   --model-name CIRNE_full_whole_cell \
@@ -45,7 +46,7 @@ validated with optional `--expected-train-count` and
 `--expected-validation-count` arguments.
 
 For Slurm, edit paths and resources in [`train.slurm`](train.slurm), then run
-`sbatch training/train.slurm`.
+`sbatch downstream_analysis/model_training/train.slurm`.
 
 ## Checkpoints and model hosting
 
@@ -53,4 +54,3 @@ Do not commit model checkpoints to Git. Pass a downloaded checkpoint to
 `--pretrained-model`, or use `cpsam` and train from the Cellpose base model.
 Release checkpoints can be hosted separately on Hugging Face and downloaded by
 users before inference.
-
