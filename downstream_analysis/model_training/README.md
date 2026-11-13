@@ -40,7 +40,7 @@ python downstream_analysis/model_training/train_cellposesam.py \
   --save-every 10
 ```
 
-The published internal workflow used 13 datasets, 5,200 training patches,
+The internal reference workflow used 13 datasets, 5,200 training patches,
 1,300 validation patches, and 512 × 512-pixel patches. These counts are
 validated with optional `--expected-train-count` and
 `--expected-validation-count` arguments.

@@ -1,8 +1,8 @@
 """Core CIRNE registration algorithm.
 
-CIRNE estimates local integer translations from binary foreground occupancy,
+CIRNE estimates local integer translations from nuclear-mask occupancy,
 interpolates those translations into a smooth displacement field, and applies
-the field to the original instance labels with nearest-neighbour sampling.
+the field to a raw moving image or an instance-label image.
 """
 
 from __future__ import annotations
@@ -267,6 +267,66 @@ def warp_labels(
                 labels, (yy - dy, xx - dx), order=0, mode="constant", cval=0
             )
             out[y0 : y0 + height, x0 : x0 + width] = warped.astype(labels.dtype, copy=False)
+    return out
+
+
+def warp_image(
+    image: np.ndarray,
+    dy_grid: np.ndarray,
+    dx_grid: np.ndarray,
+    grid_step: int,
+    tile_size: tuple[int, int] = (1024, 1024),
+    interpolation_order: int = 1,
+    fill_value: float = 0.0,
+) -> np.ndarray:
+    """Inverse-warp a grayscale or channel-last raw image tile by tile.
+
+    ``interpolation_order=1`` provides bilinear interpolation for raw images;
+    use ``0`` for nearest-neighbour sampling.
+    """
+    image = np.asarray(image)
+    if image.ndim not in (2, 3):
+        raise ValueError("image must be 2-D grayscale or 3-D channel-last")
+    if interpolation_order not in (0, 1):
+        raise ValueError("interpolation_order must be 0 or 1")
+    if grid_step <= 0:
+        raise ValueError("grid_step must be positive")
+    tile_h, tile_w = map(int, tile_size)
+    if tile_h <= 0 or tile_w <= 0:
+        raise ValueError("tile_size values must be positive")
+
+    out = np.zeros_like(image)
+    height_total, width_total = image.shape[:2]
+    for y0 in range(0, height_total, tile_h):
+        for x0 in range(0, width_total, tile_w):
+            height = min(tile_h, height_total - y0)
+            width = min(tile_w, width_total - x0)
+            dy, dx = _dense_field_crop(dy_grid, dx_grid, grid_step, y0, x0, (height, width))
+            yy, xx = np.meshgrid(
+                np.arange(y0, y0 + height, dtype=np.float32),
+                np.arange(x0, x0 + width, dtype=np.float32),
+                indexing="ij",
+            )
+            coordinates = (yy - dy, xx - dx)
+            if image.ndim == 2:
+                out[y0 : y0 + height, x0 : x0 + width] = map_coordinates(
+                    image,
+                    coordinates,
+                    order=interpolation_order,
+                    mode="constant",
+                    cval=float(fill_value),
+                    prefilter=False,
+                )
+            else:
+                for channel in range(image.shape[2]):
+                    out[y0 : y0 + height, x0 : x0 + width, channel] = map_coordinates(
+                        image[..., channel],
+                        coordinates,
+                        order=interpolation_order,
+                        mode="constant",
+                        cval=float(fill_value),
+                        prefilter=False,
+                    )
     return out
 
 

@@ -6,6 +6,7 @@ from cirne import (
     iou_binary,
     register_masks,
     shift2d_zero,
+    warp_image,
     warp_labels,
 )
 
@@ -59,7 +60,31 @@ def test_single_patch_builds_constant_field() -> None:
     assert np.all(dx_grid == -4)
 
 
+def test_rgb_raw_image_is_warped_with_the_mask_field() -> None:
+    moving = labels()
+    fixed = shift2d_zero(moving, 4, -6)
+    raw = np.stack((moving > 0, moving == 2, moving == 7), axis=-1).astype(np.uint8) * 255
+    result = register_masks(
+        moving,
+        fixed,
+        patch_size=moving.shape,
+        stride=moving.shape,
+        grid_step=32,
+        smooth_sigma=0,
+    )
+    warped = warp_image(
+        raw,
+        result.dy_grid,
+        result.dx_grid,
+        result.grid_step,
+        interpolation_order=0,
+    )
+    expected = shift2d_zero(raw[..., 0], 4, -6)
+    assert warped.shape == raw.shape
+    assert warped.dtype == raw.dtype
+    assert np.array_equal(warped[..., 0], expected)
+
+
 def test_empty_iou_is_one() -> None:
     empty = np.zeros((4, 4), dtype=bool)
     assert iou_binary(empty, empty) == 1.0
-

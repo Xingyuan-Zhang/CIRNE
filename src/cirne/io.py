@@ -31,6 +31,25 @@ def load_labels(path: str | Path) -> np.ndarray:
     return labels
 
 
+def load_image(path: str | Path) -> np.ndarray:
+    """Load a 2-D grayscale or 3-D channel-last raw image from NPY or TIFF."""
+    path = Path(path)
+    if path.suffix.lower() == ".npy":
+        image = np.load(path, allow_pickle=False)
+    elif path.suffix.lower() in {".tif", ".tiff"}:
+        image = tifffile.imread(path)
+    else:
+        raise ValueError(f"Unsupported image format: {path.suffix}. Use .npy, .tif, or .tiff")
+    image = np.asarray(image)
+    if image.ndim not in (2, 3):
+        raise ValueError(
+            f"Expected a 2-D grayscale or 3-D channel-last image, got shape {image.shape} from {path}"
+        )
+    if not (np.issubdtype(image.dtype, np.number) or image.dtype == bool):
+        raise ValueError(f"Raw image must contain numeric values: {path}")
+    return image
+
+
 def save_labels(path: str | Path, labels: np.ndarray) -> None:
     """Save an instance-label image as NPY or TIFF."""
     path = Path(path)
@@ -43,10 +62,21 @@ def save_labels(path: str | Path, labels: np.ndarray) -> None:
         raise ValueError(f"Unsupported output format: {path.suffix}")
 
 
+def save_image(path: str | Path, image: np.ndarray) -> None:
+    """Save a grayscale or channel-last raw image as NPY or TIFF."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.suffix.lower() == ".npy":
+        np.save(path, image, allow_pickle=False)
+    elif path.suffix.lower() in {".tif", ".tiff"}:
+        tifffile.imwrite(path, image)
+    else:
+        raise ValueError(f"Unsupported output format: {path.suffix}. Use .npy, .tif, or .tiff")
+
+
 def write_json(path: str | Path, value: dict[str, Any]) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         json.dump(value, handle, indent=2, sort_keys=True)
         handle.write("\n")
-

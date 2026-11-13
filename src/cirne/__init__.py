@@ -9,6 +9,7 @@ from .core import (
     mask_metrics,
     register_masks,
     shift2d_zero,
+    warp_image,
     warp_labels,
 )
 
@@ -21,8 +22,8 @@ __all__ = [
     "mask_metrics",
     "register_masks",
     "shift2d_zero",
+    "warp_image",
     "warp_labels",
 ]
 
-__version__ = "0.1.0"
-
+__version__ = "0.2.0"

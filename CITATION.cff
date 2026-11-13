@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use CIRNE, please cite this software and the Halo paper."
+message: "If you use CIRNE, please cite this software."
 title: "CIRNE: instance-mask-guided nonrigid registration"
 type: software
 authors:
@@ -7,21 +7,5 @@ authors:
     given-names: Xingyuan
 repository-code: "https://github.com/Xingyuan-Zhang/CIRNE"
 license: MIT
-version: 0.1.0
-date-released: 2026-11-12
-preferred-citation:
-  type: article
-  title: "Halo: a pretrained model for whole-cell segmentation from nuclei images in spatial transcriptomics"
-  authors:
-    - family-names: Zhang
-      given-names: Xingyuan
-    - family-names: Zhuang
-      given-names: Haotian
-    - family-names: Ji
-      given-names: Zhicheng
-  journal: Briefings in Bioinformatics
-  volume: 27
-  issue: 5
-  year: 2026
-  doi: 10.1093/bib/bbag515
-
+version: 0.2.0
+date-released: 2026-11-13

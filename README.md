@@ -2,8 +2,8 @@
 
 **CIRNE** is a lightweight, instance-mask-guided nonrigid registration tool for
 spatial imaging. It estimates local translations from foreground masks, builds
-a smooth deformation field, and warps the original instance-label image while
-preserving label IDs.
+a smooth deformation field, and uses it to warp the corresponding raw image.
+CIRNE is an independent registration project.
 
 ## Method overview
 
@@ -24,8 +24,8 @@ part of `cirne`.
 2. Estimate each eligible patch's integer translation by FFT correlation and
    local IoU refinement.
 3. Interpolate the patch translations into a smooth displacement field.
-4. Inverse-warp the original moving labels with nearest-neighbour sampling so
-   instance IDs are retained.
+4. Inverse-warp the raw moving image using bilinear interpolation. Instance
+   labels can optionally be warped with nearest-neighbour sampling.
 
 CIRNE estimates geometry from binary foreground occupancy; it does not perform
 one-to-one matching between cell IDs in the two images.
@@ -47,33 +47,47 @@ pytest
 
 ## Quick start
 
-Both inputs must be 2-D instance-label images of equal shape. Background is
-zero; positive integers are instance IDs. NPY and TIFF are supported.
+Provide two 2-D nuclei label masks and the raw moving image associated with the
+moving nuclei. All three inputs must have identical spatial dimensions.
+Background in the masks is zero and positive integers are instance IDs. The raw
+image may be 2-D grayscale or 3-D channel-last. NPY and TIFF are supported.
 
 ```bash
 cirne-register \
-  --moving moving_cells.tif \
-  --fixed fixed_nuclei.npy \
-  --output cirne_results \
+  --moving-nuclei moving_nuclei.npy \
+  --fixed-nuclei fixed_nuclei.npy \
+  --moving-image moving_raw_image.tif \
+  --output warped_image.tif \
   --patch-size 500 \
   --stride 500
 ```
 
-The command writes:
+By default, the command writes exactly one file:
 
-- `warped_labels.npy`: registered instance labels;
-- `patch_moves.npz`: patch centres, translations, and local IoU scores;
-- `coarse_field.npz`: smooth coarse displacement field;
-- `summary.json`: parameters and before/after overlap metrics.
+- `warped_image.tif`: the registered raw moving image.
+
+Intermediate outputs are opt-in:
+
+```bash
+cirne-register \
+  --moving-nuclei moving_nuclei.npy \
+  --fixed-nuclei fixed_nuclei.npy \
+  --moving-image moving_raw_image.tif \
+  --output warped_image.tif \
+  --save-field \
+  --save-patch-moves \
+  --save-summary \
+  --save-warped-nuclei
+```
 
 The Python API exposes the same workflow:
 
 ```python
-from cirne import register_masks, warp_labels
+from cirne import register_masks, warp_image
 
-result = register_masks(moving_labels, fixed_labels, patch_size=(500, 500))
-warped = warp_labels(
-    moving_labels,
+result = register_masks(moving_nuclei, fixed_nuclei, patch_size=(500, 500))
+warped = warp_image(
+    moving_raw_image,
     result.dy_grid,
     result.dx_grid,
     result.grid_step,
@@ -114,12 +128,8 @@ raw images, intermediate arrays, and model checkpoints are excluded.
 
 ## Citation
 
-If CIRNE contributes to your work, please cite this repository and the Halo
-paper:
-
-> Zhang X, Zhuang H, Ji Z. Halo: a pretrained model for whole-cell segmentation
-> from nuclei images in spatial transcriptomics. *Briefings in Bioinformatics*.
-> 2026;27(5):bbag515. doi:10.1093/bib/bbag515.
+If CIRNE contributes to your work, please cite this software repository using
+the metadata in [`CITATION.cff`](CITATION.cff).
 
 ## License
 
